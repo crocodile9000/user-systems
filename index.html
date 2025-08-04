@@ -1,0 +1,27 @@
+<input id="q" placeholder="Nhập tên…">
+<ul id="out"></ul>
+<script>
+  // 1. Fetch CSV từ Google Sheets
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTSkqwCECESLS9kihHIbzz_gxqmjkh-4RtgMQbEjoOPSepkJa7cVOlHIgLTadecPR7W_7Mj2qcLDpT7/pub?gid=0&single=true&output=csv')
+    .then(res => res.text())
+    .then(text => {
+      // 2. Chuyển CSV thành mảng objects
+      const rows = text.trim().split('\n').slice(1);
+      const data = rows.map(r => {
+        const [name, system] = r.split(',');
+        return { name: name.trim(), system: system.trim() };
+      });
+
+      // 3. Search live
+      document.getElementById('q').addEventListener('input', e => {
+        const key = e.target.value.trim().toLowerCase();
+        const apps = data
+          .filter(x => x.name.toLowerCase() === key)
+          .map(x => x.system);
+        const uniq = [...new Set(apps)];
+        document.getElementById('out').innerHTML = uniq.length
+          ? uniq.map(s => `<li>${s}</li>`).join('')
+          : '<li><i>Không tìm thấy</i></li>';
+      });
+    });
+</script>
